@@ -8,6 +8,7 @@
 #include <QJsonArray>
 #include <QVariant>
 #include <QList>
+#include <QMetaType>
 
 class LocationManager : public QObject
 {
@@ -42,5 +43,7 @@ private:
     double m_longitude = 0.0;
     double m_accuracy = 0.0;
 };
+
+Q_DECLARE_METATYPE(QList<QVariant>)
 
 #endif // LOCATIONMANAGER_H

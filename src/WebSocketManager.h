@@ -11,6 +11,7 @@
 #include <QMap>
 #include <QVariant>
 #include <QList>
+#include <QMetaType>
 
 class WebSocketManager : public QObject
 {
@@ -168,5 +169,7 @@ private:
     int m_reconnectInterval = 2000;
     const int MAX_RECONNECT_INTERVAL = 10000;
 };
+
+Q_DECLARE_METATYPE(QList<QVariant>)
 
 #endif // WEBSOCKETMANAGER_H
