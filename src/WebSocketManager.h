@@ -13,6 +13,34 @@
 class WebSocketManager : public QObject
 {
     Q_OBJECT
+
+public:
+    enum ConnectionStatus {
+        StatusDisconnected,
+        StatusConnecting,
+        StatusConnected
+    };
+    Q_ENUM(ConnectionStatus)
+
+    enum CommState {
+        CommStateOffline,
+        CommStateReconnecting,
+        CommStateIdle,
+        CommStateTx,
+        CommStateRx,
+        CommStateCalling
+    };
+    Q_ENUM(CommState)
+
+    enum PtpHandshakeStatus {
+        PtpStatusNone,
+        PtpStatusRequesting,
+        PtpStatusAccepted,
+        PtpStatusFailed,
+        PtpStatusTimeout
+    };
+    Q_ENUM(PtpHandshakeStatus)
+
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectionStatusChanged)
     Q_PROPERTY(QString channelName READ channelName NOTIFY channelNameChanged)
     Q_PROPERTY(QString talkingStatus READ talkingStatus NOTIFY talkingStatusChanged)
@@ -26,43 +54,16 @@ class WebSocketManager : public QObject
     Q_PROPERTY(QString duplexMode READ duplexMode NOTIFY permissionsChanged)
     Q_PROPERTY(QJsonArray usersOnline READ usersOnline NOTIFY usersOnlineChanged)
     Q_PROPERTY(QJsonArray channelsList READ channelsList NOTIFY channelsListChanged)
-    Q_PROPERTY(int connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
+    Q_PROPERTY(ConnectionStatus connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
     Q_PROPERTY(bool isSosActive READ isSosActive NOTIFY sosStatusChanged)
     Q_PROPERTY(CommState communicationState READ communicationState NOTIFY communicationStateChanged)
     Q_PROPERTY(PtpHandshakeStatus ptpHandshakeStatus READ ptpHandshakeStatus NOTIFY ptpHandshakeChanged)
-
-public:
-    enum ConnectionStatus {
-        Disconnected,
-        Connecting,
-        Connected
-    };
-    Q_ENUM(ConnectionStatus)
-
-    enum CommState {
-        StateOffline,
-        StateReconnecting,
-        StateIdle,
-        StateTx,
-        StateRx,
-        StateCalling
-    };
-    Q_ENUM(CommState)
-
-    enum PtpHandshakeStatus {
-        PtpNone,
-        PtpRequesting,
-        PtpAccepted,
-        PtpFailed,
-        PtpTimeout
-    };
-    Q_ENUM(PtpHandshakeStatus)
 
     explicit WebSocketManager(QObject *parent = nullptr);
     static WebSocketManager* instance();
 
     bool isConnected() const { return m_isConnected; }
-    int connectionStatus() const { return m_connectionStatus; }
+    ConnectionStatus connectionStatus() const { return m_connectionStatus; }
     CommState communicationState() const { return m_commState; }
     PtpHandshakeStatus ptpHandshakeStatus() const { return m_ptpStatus; }
     QString channelName() const { return m_channelName; }
@@ -79,11 +80,11 @@ public:
     QJsonArray channelsList() const { return m_channelsList; }
     bool isSosActive() const { return m_isSosActive; }
 
-    Q_INVOKABLE void login(const QString &username, const QString &password, const QString &serverUrl = "ws://polri.poc-id.my.id:5000");
+    Q_INVOKABLE void login(const QString &username, const QString &password, const QString &serverUrl);
     Q_INVOKABLE void startTalking();
     Q_INVOKABLE void stopTalking();
     Q_INVOKABLE void joinChannel(const QString &slug);
-    Q_INVOKABLE void sendLocation(double lat, double lon, double acc = 10.0, const QString &addr = "");
+    Q_INVOKABLE void sendLocation(double lat, double lon, double acc, const QString &addr);
     Q_INVOKABLE void startPtp(const QString &userId, const QString &userName);
     Q_INVOKABLE void endPtp();
     Q_INVOKABLE void sendSos();
@@ -141,9 +142,9 @@ private:
     bool m_isSosActive = false;
     QString m_sosSenderId;
 
-    int m_connectionStatus = Disconnected;
-    CommState m_commState = StateOffline;
-    PtpHandshakeStatus m_ptpStatus = PtpNone;
+    ConnectionStatus m_connectionStatus = StatusDisconnected;
+    CommState m_commState = CommStateOffline;
+    PtpHandshakeStatus m_ptpStatus = PtpStatusNone;
     QTimer *m_ptpTimeoutTimer;
 
     QJsonArray m_usersOnline;
@@ -159,7 +160,6 @@ private:
     bool m_isPrivateRx = false;
     QMap<quint32, QString> m_userIdToNameMap;
 
-    // Reconnection Backoff
     int m_reconnectInterval = 2000;
     const int MAX_RECONNECT_INTERVAL = 10000;
 };

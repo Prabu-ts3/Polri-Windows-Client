@@ -26,8 +26,8 @@ WebSocketManager::WebSocketManager(QObject *parent) : QObject(parent)
     m_ptpTimeoutTimer = new QTimer(this);
     m_ptpTimeoutTimer->setSingleShot(true);
     connect(m_ptpTimeoutTimer, &QTimer::timeout, this, [this]() {
-        if (m_ptpStatus == PtpRequesting) {
-            m_ptpStatus = PtpTimeout;
+        if (m_ptpStatus == PtpStatusRequesting) {
+            m_ptpStatus = PtpStatusTimeout;
             emit ptpHandshakeChanged();
             updateTalkingStatusUI();
         }
@@ -83,7 +83,7 @@ void WebSocketManager::login(const QString &username, const QString &password, c
     m_savedUsername = username;
     m_savedPassword = password;
 
-    m_connectionStatus = Connecting;
+    m_connectionStatus = StatusConnecting;
     emit connectionStatusChanged();
 
     m_webSocket.open(QUrl(serverUrl));
@@ -94,8 +94,8 @@ void WebSocketManager::onConnected()
 {
     qDebug() << "WebSocket Connected";
     m_isConnected = true;
-    m_connectionStatus = Connected;
-    m_commState = StateIdle;
+    m_connectionStatus = StatusConnected;
+    m_commState = CommStateIdle;
     m_reconnectInterval = 2000; // Reset backoff on success
     emit connectionStatusChanged();
     emit communicationStateChanged();
@@ -112,8 +112,8 @@ void WebSocketManager::onDisconnected()
 {
     qDebug() << "WebSocket Disconnected";
     m_isConnected = false;
-    m_connectionStatus = Disconnected;
-    m_commState = StateOffline;
+    m_connectionStatus = StatusDisconnected;
+    m_commState = CommStateOffline;
     emit connectionStatusChanged();
     emit communicationStateChanged();
 
@@ -123,7 +123,7 @@ void WebSocketManager::onDisconnected()
 
     // Exponential Backoff Reconnection (Parity with Android)
     QTimer::singleShot(m_reconnectInterval, this, [this]() {
-        if (m_connectionStatus == Disconnected && !m_savedUsername.isEmpty()) {
+        if (m_connectionStatus == StatusDisconnected && !m_savedUsername.isEmpty()) {
             qDebug() << "Attempting to reconnect in" << m_reconnectInterval << "ms";
             m_webSocket.open(m_webSocket.requestUrl());
 
@@ -148,7 +148,6 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
 
     if (type == "login_success") {
         m_myUserId = data["id"].toString();
-        // Server sends 'username' field which contains user's display name
         m_myUserName = data["username"].toString();
         m_myIdTruncated = toTruncatedId(m_myUserId);
 
@@ -157,7 +156,6 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
         m_isPtpEnabled = data["enable_p2p"].toBool(true);
         m_duplexMode = data["duplex_mode"].toString("HALF DUPLEX");
 
-        // Populate channels if provided
         if (data.contains("channels")) {
             m_channelsList = data["channels"].toArray();
             emit channelsListChanged(m_channelsList);
@@ -176,7 +174,6 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
         m_channelName = data["channel_name"].toString();
         m_lastChannelName = m_channelName;
 
-        // Server also sends initial speakers in join_channel_success
         QJsonArray speakers = data["speakers"].toArray();
         m_activeSpeakers.clear();
         for (const QJsonValue &v : speakers) {
@@ -212,7 +209,7 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
         }
     } else if (type == "ptp_confirmed") {
         m_ptpTimeoutTimer->stop();
-        m_ptpStatus = PtpAccepted;
+        m_ptpStatus = PtpStatusAccepted;
         emit ptpHandshakeChanged();
         m_ptpTargetId = data["target_id"].toString();
         m_ptpTargetName = data["target_name"].toString();
@@ -222,10 +219,10 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
         emit ptpStatusChanged();
     } else if (type == "ptp_failed") {
         m_ptpTimeoutTimer->stop();
-        m_ptpStatus = PtpFailed;
+        m_ptpStatus = PtpStatusFailed;
         emit ptpHandshakeChanged();
     } else if (type == "ptp_cancelled") {
-        m_ptpStatus = PtpNone;
+        m_ptpStatus = PtpStatusNone;
         emit ptpHandshakeChanged();
         m_ptpTargetId = "";
         m_ptpTargetName = "";
@@ -255,7 +252,7 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
         emit usersOnlineChanged(m_usersOnline);
     } else if (type == "sos_signal_received") {
         QString senderId = data["sender_id"].toString();
-        if (senderId == m_myUserId) return; // Ignore own SOS
+        if (senderId == m_myUserId) return;
 
         QString senderName = data["sender_name"].toString();
         double lat = data["latitude"].toDouble();
@@ -319,15 +316,15 @@ void WebSocketManager::checkSpeakerIdle()
 void WebSocketManager::updateTalkingStatusUI()
 {
     QString nextStatus = "IDLE";
-    CommState nextCommState = StateIdle;
+    CommState nextCommState = CommStateIdle;
     bool isMeTalking = m_talkingStatus == "You are Speaking" || m_talkingStatus.startsWith("Private to");
 
     if (isMeTalking) {
-        nextCommState = StateTx;
+        nextCommState = CommStateTx;
         if (!m_ptpTargetId.isEmpty()) nextStatus = "Private to " + m_ptpTargetName;
         else nextStatus = "You are Speaking";
     } else if (!m_activeSpeakers.isEmpty()) {
-        nextCommState = StateRx;
+        nextCommState = CommStateRx;
         QStringList names = m_activeSpeakers.values();
         QString combined = names.join(", ");
         if (m_isPrivateRx) nextStatus = "Private from " + combined;
@@ -341,7 +338,7 @@ void WebSocketManager::updateTalkingStatusUI()
             emit lastSpeakerChanged();
         }
         nextStatus = "IDLE";
-        nextCommState = StateIdle;
+        nextCommState = CommStateIdle;
     }
 
     if (m_commState != nextCommState) {
@@ -367,8 +364,6 @@ void WebSocketManager::startTalking()
     if (!m_isConnected || (m_isRxOnly && m_ptpTargetId.isEmpty())) return;
     if (m_duplexMode == "HALF DUPLEX" && !m_activeSpeakers.isEmpty() && m_ptpTargetId.isEmpty()) return;
 
-    // 800ms PTT Start Delay (Android Parity)
-    // This allows the "Chirp" sound to finish and the server to prepare
     m_pttDelayTimer->start(800);
     SoundManager::instance()->playStartTx();
 }
@@ -409,20 +404,20 @@ void WebSocketManager::stopTalking()
 
 void WebSocketManager::startPtp(const QString &userId, const QString &userName)
 {
-    if (m_ptpTargetId == userId || m_ptpStatus == PtpRequesting) return;
+    if (m_ptpTargetId == userId || m_ptpStatus == PtpStatusRequesting) return;
 
-    m_ptpStatus = PtpRequesting;
+    m_ptpStatus = PtpStatusRequesting;
     m_ptpTargetName = userName;
     emit ptpHandshakeChanged();
 
-    m_ptpTimeoutTimer->start(10000); // 10s timeout
+    m_ptpTimeoutTimer->start(10000);
     sendJson("request_ptp", QJsonObject{{"target_id", userId}});
 }
 
 void WebSocketManager::endPtp()
 {
     m_ptpTimeoutTimer->stop();
-    m_ptpStatus = PtpNone;
+    m_ptpStatus = PtpStatusNone;
     emit ptpHandshakeChanged();
 
     sendJson("cancel_ptp", QJsonObject());

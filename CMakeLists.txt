@@ -16,6 +16,7 @@ add_subdirectory(opus/opus-1.5.2)
 qt_standard_project_setup()
 
 # Tambahkan WIN32 agar tidak muncul jendela console saat dijalankan
+# Tambahkan executable
 qt_add_executable(PolriWindowsClient WIN32
     src/main.cpp
     src/WebSocketManager.cpp

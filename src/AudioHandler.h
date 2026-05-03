@@ -9,6 +9,9 @@
 #include <QIODevice>
 #include <QByteArray>
 #include <QMap>
+#include <QList>
+#include <QMutex>
+#include <QTimer>
 #include <opus.h>
 
 class AudioHandler : public QObject
@@ -23,6 +26,10 @@ public:
     void startRecording();
     void stopRecording();
     void playAudio(quint32 userId, const QByteArray &data);
+
+signals:
+    void audioDataReady(const QByteArray &data);
+    void voxTriggered(bool speaking);
 
 private slots:
     void readAudio();
@@ -43,11 +50,9 @@ private:
     QAudioFormat m_format;
     QTimer *m_mixTimer = nullptr;
 
-    // Multi-user Buffers
     QMap<quint32, QList<QByteArray>> m_userAudioQueues;
     QMutex m_audioMutex;
 
-    // Opus members
     OpusEncoder *m_encoder = nullptr;
     QMap<quint32, OpusDecoder*> m_decoders;
 
@@ -61,7 +66,6 @@ private:
     int m_channels = 1;
     int m_frameSize = 320;
 
-    // VOX state
     bool m_isVoxSpeaking = false;
     int m_voxSilenceFrames = 0;
     int m_voxTriggerFrames = 0;

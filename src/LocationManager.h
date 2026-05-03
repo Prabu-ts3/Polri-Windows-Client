@@ -12,17 +12,24 @@ class LocationManager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariantList userLocations READ userLocations NOTIFY userLocationsChanged)
+    Q_PROPERTY(double latitude READ latitude NOTIFY positionChanged)
+    Q_PROPERTY(double longitude READ longitude NOTIFY positionChanged)
+    Q_PROPERTY(double accuracy READ accuracy NOTIFY positionChanged)
 
 public:
     explicit LocationManager(QObject *parent = nullptr);
     static LocationManager* instance();
 
     QVariantList userLocations() const { return m_userLocations; }
+    double latitude() const { return m_latitude; }
+    double longitude() const { return m_longitude; }
+    double accuracy() const { return m_accuracy; }
 
     void updateRemoteUsers(const QJsonArray &users);
 
 signals:
     void userLocationsChanged();
+    void positionChanged();
 
 private slots:
     void positionUpdated(const QGeoPositionInfo &info);
@@ -30,6 +37,9 @@ private slots:
 private:
     QGeoPositionInfoSource *m_source = nullptr;
     QVariantList m_userLocations;
+    double m_latitude = 0.0;
+    double m_longitude = 0.0;
+    double m_accuracy = 0.0;
 };
 
 #endif // LOCATIONMANAGER_H

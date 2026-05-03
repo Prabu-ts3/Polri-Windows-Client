@@ -10,12 +10,12 @@ SoundManager::SoundManager(QObject *parent) : QObject(parent)
     s_instance = this;
 
     // Volume levels identik dengan SoundManager.kt
-    loadSound(PttOn, "qrc:/PolriApp/assets/sounds/on.wav", 0.2f);   // VOL_DTMF
-    loadSound(PttOff, "qrc:/PolriApp/assets/sounds/off.wav", 0.2f); // VOL_DTMF
-    loadSound(RxStart, "qrc:/PolriApp/assets/sounds/rx.wav", 0.5f); // VOL_RX_START
-    loadSound(RxEnd, "qrc:/PolriApp/assets/sounds/end.wav", 0.8f);   // VOL_RX_STOP / VOL_END
-    loadSound(Sos, "qrc:/PolriApp/assets/sounds/sos.wav", 1.0f);    // VOL_SOS
-    loadSound(Push, "qrc:/PolriApp/assets/sounds/push.wav", 0.2f);  // VOL_PUSH
+    loadSound(SoundPttOn, "qrc:/PolriApp/assets/sounds/on.wav", 0.2f);   // VOL_DTMF
+    loadSound(SoundPttOff, "qrc:/PolriApp/assets/sounds/off.wav", 0.2f); // VOL_DTMF
+    loadSound(SoundRxStart, "qrc:/PolriApp/assets/sounds/rx.wav", 0.5f); // VOL_RX_START
+    loadSound(SoundRxEnd, "qrc:/PolriApp/assets/sounds/end.wav", 0.8f);   // VOL_RX_STOP / VOL_END
+    loadSound(SoundSos, "qrc:/PolriApp/assets/sounds/sos.wav", 1.0f);    // VOL_SOS
+    loadSound(SoundPush, "qrc:/PolriApp/assets/sounds/push.wav", 0.2f);  // VOL_PUSH
 }
 
 SoundManager* SoundManager::instance()
@@ -44,7 +44,7 @@ void SoundManager::playStartTx()
     if (!settings->soundPush()) return;
     if (settings->dtmfMode() || settings->gatewayMode()) return;
 
-    play(Push);
+    play(SoundPush);
 }
 
 void SoundManager::playStopTx()
@@ -53,7 +53,7 @@ void SoundManager::playStopTx()
     if (!settings->soundPush()) return;
     if (settings->dtmfMode() || settings->gatewayMode()) return;
 
-    play(RxEnd); // Di Android play(R.raw.end, VOL_END)
+    play(SoundRxEnd); // Di Android play(R.raw.end, VOL_END)
 }
 
 void SoundManager::playRxStart()
@@ -65,9 +65,9 @@ void SoundManager::playRxStart()
     if (settings->gatewayMode() && !settings->dtmfMode()) return;
 
     if (settings->dtmfMode()) {
-        play(PttOn); // on.wav
+        play(SoundPttOn); // on.wav
     } else {
-        play(RxStart); // rx.wav
+        play(SoundRxStart); // rx.wav
     }
 }
 
@@ -80,23 +80,23 @@ void SoundManager::playRxStop()
     if (settings->gatewayMode() && !settings->dtmfMode()) return;
 
     if (settings->dtmfMode()) {
-        play(PttOff); // off.wav
+        play(SoundPttOff); // off.wav
     } else {
-        play(RxEnd); // end.wav
+        play(SoundRxEnd); // end.wav
     }
 }
 
 void SoundManager::startSosLoop()
 {
-    if (m_sounds.contains(Sos)) {
-        m_sounds[Sos]->setLoopCount(QSoundEffect::Infinite);
-        m_sounds[Sos]->play();
+    if (m_sounds.contains(SoundSos)) {
+        m_sounds[SoundSos]->setLoopCount(QSoundEffect::Infinite);
+        m_sounds[SoundSos]->play();
     }
 }
 
 void SoundManager::stopSosLoop()
 {
-    if (m_sounds.contains(Sos)) {
-        m_sounds[Sos]->stop();
+    if (m_sounds.contains(SoundSos)) {
+        m_sounds[SoundSos]->stop();
     }
 }

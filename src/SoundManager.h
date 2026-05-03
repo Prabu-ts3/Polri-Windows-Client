@@ -13,13 +13,14 @@ public:
     static SoundManager* instance();
 
     enum SoundType {
-        PttOn,
-        PttOff,
-        RxStart,
-        RxEnd,
-        Sos,
-        Push
+        SoundPttOn,
+        SoundPttOff,
+        SoundRxStart,
+        SoundRxEnd,
+        SoundSos,
+        SoundPush
     };
+    Q_ENUM(SoundType)
 
     Q_INVOKABLE void play(SoundType type);
 

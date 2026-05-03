@@ -26,15 +26,14 @@ void LocationManager::positionUpdated(const QGeoPositionInfo &info)
 {
     if (!info.isValid()) return;
 
-    double lat = info.coordinate().latitude();
-    double lon = info.coordinate().longitude();
+    m_latitude = info.coordinate().latitude();
+    m_longitude = info.coordinate().longitude();
+    m_accuracy = info.attribute(QGeoPositionInfo::HorizontalAccuracy);
 
-    QJsonObject locData;
-    locData["lat"] = lat;
-    locData["lng"] = lon;
+    emit positionChanged();
 
     // Send to server via WebSocketManager
-    WebSocketManager::instance()->sendLocation(lat, lon);
+    WebSocketManager::instance()->sendLocation(m_latitude, m_longitude, m_accuracy, "");
 }
 
 void LocationManager::updateRemoteUsers(const QJsonArray &users)
