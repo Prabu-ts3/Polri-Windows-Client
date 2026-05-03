@@ -158,7 +158,7 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
 
         if (data.contains("channels")) {
             m_channelsList = data["channels"].toArray().toVariantList();
-            emit channelsListChanged(m_channelsList);
+            emit channelsListChanged();
         }
 
         emit permissionsChanged();
@@ -169,7 +169,7 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
         emit loginError(data["message"].toString());
     } else if (type == "channels_updated") {
         m_channelsList = data["channels"].toArray().toVariantList();
-        emit channelsListChanged(m_channelsList);
+        emit channelsListChanged();
     } else if (type == "join_channel_success") {
         m_channelName = data["channel_name"].toString();
         m_lastChannelName = m_channelName;
@@ -250,7 +250,7 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
             QJsonObject u = v.toObject();
             m_userIdToNameMap[toTruncatedId(u["id"].toString())] = u["name"].toString();
         }
-        emit usersOnlineChanged(m_usersOnline);
+        emit usersOnlineChanged();
     } else if (type == "sos_signal_received") {
         QString senderId = data["sender_id"].toString();
         if (senderId == m_myUserId) return;

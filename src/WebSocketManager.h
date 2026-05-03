@@ -10,7 +10,7 @@
 #include <QSet>
 #include <QMap>
 #include <QVariant>
-#include <QVariantList>
+#include <QList>
 
 class WebSocketManager : public QObject
 {
@@ -43,32 +43,31 @@ public:
     };
     Q_ENUM(PtpHandshakeStatus)
 
-    // Use internal Enum types without class qualification to avoid MOC "illegal value" errors in Qt6.5+
-    Q_PROPERTY(bool connected READ isConnected NOTIFY connectionStatusChanged)
+    Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
     Q_PROPERTY(QString channelName READ channelName NOTIFY channelNameChanged)
     Q_PROPERTY(QString talkingStatus READ talkingStatus NOTIFY talkingStatusChanged)
     Q_PROPERTY(QString lastSpeaker READ lastSpeaker NOTIFY lastSpeakerChanged)
     Q_PROPERTY(QString ptpTargetName READ ptpTargetName NOTIFY ptpTargetNameChanged)
-    Q_PROPERTY(QString myUserId READ myUserId NOTIFY loginSuccess)
+    Q_PROPERTY(QString myUserId READ myUserId NOTIFY myUserIdChanged)
     Q_PROPERTY(bool isPtpActive READ isPtpActive NOTIFY ptpStatusChanged)
     Q_PROPERTY(bool isRxOnly READ isRxOnly NOTIFY permissionsChanged)
     Q_PROPERTY(bool isVideoEnabled READ isVideoEnabled NOTIFY permissionsChanged)
     Q_PROPERTY(bool isPtpEnabled READ isPtpEnabled NOTIFY permissionsChanged)
     Q_PROPERTY(QString duplexMode READ duplexMode NOTIFY permissionsChanged)
-    Q_PROPERTY(QVariantList usersOnline READ usersOnline NOTIFY usersOnlineChanged)
-    Q_PROPERTY(QVariantList channelsList READ channelsList NOTIFY channelsListChanged)
-    Q_PROPERTY(ConnectionStatus connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
+    Q_PROPERTY(QList<QVariant> usersOnline READ usersOnline NOTIFY usersOnlineChanged)
+    Q_PROPERTY(QList<QVariant> channelsList READ channelsList NOTIFY channelsListChanged)
+    Q_PROPERTY(WebSocketManager::ConnectionStatus connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
     Q_PROPERTY(bool isSosActive READ isSosActive NOTIFY sosStatusChanged)
-    Q_PROPERTY(CommState communicationState READ communicationState NOTIFY communicationStateChanged)
-    Q_PROPERTY(PtpHandshakeStatus ptpHandshakeStatus READ ptpHandshakeStatus NOTIFY ptpHandshakeChanged)
+    Q_PROPERTY(WebSocketManager::CommState communicationState READ communicationState NOTIFY communicationStateChanged)
+    Q_PROPERTY(WebSocketManager::PtpHandshakeStatus ptpHandshakeStatus READ ptpHandshakeStatus NOTIFY ptpHandshakeChanged)
 
     explicit WebSocketManager(QObject *parent = nullptr);
     static WebSocketManager* instance();
 
     bool isConnected() const { return m_isConnected; }
-    ConnectionStatus connectionStatus() const { return m_connectionStatus; }
-    CommState communicationState() const { return m_commState; }
-    PtpHandshakeStatus ptpHandshakeStatus() const { return m_ptpStatus; }
+    WebSocketManager::ConnectionStatus connectionStatus() const { return m_connectionStatus; }
+    WebSocketManager::CommState communicationState() const { return m_commState; }
+    WebSocketManager::PtpHandshakeStatus ptpHandshakeStatus() const { return m_ptpStatus; }
 
     QString channelName() const { return m_channelName; }
     QString talkingStatus() const { return m_talkingStatus; }
@@ -80,8 +79,8 @@ public:
     bool isVideoEnabled() const { return m_isVideoEnabled; }
     bool isPtpEnabled() const { return m_isPtpEnabled; }
     QString duplexMode() const { return m_duplexMode; }
-    QVariantList usersOnline() const { return m_usersOnline; }
-    QVariantList channelsList() const { return m_channelsList; }
+    QList<QVariant> usersOnline() const { return m_usersOnline; }
+    QList<QVariant> channelsList() const { return m_channelsList; }
     bool isSosActive() const { return m_isSosActive; }
 
     Q_INVOKABLE void login(const QString &username, const QString &password, const QString &serverUrl);
@@ -95,12 +94,14 @@ public:
     Q_INVOKABLE void confirmSos(const QString &senderId);
 
 signals:
+    void connectedChanged();
     void connectionStatusChanged();
     void channelNameChanged();
     void talkingStatusChanged();
     void lastSpeakerChanged();
     void ptpTargetNameChanged();
     void ptpStatusChanged();
+    void myUserIdChanged();
     void permissionsChanged();
     void sosStatusChanged();
     void communicationStateChanged();
@@ -108,8 +109,8 @@ signals:
     void sosReceived(const QString &senderName, double lat, double lon);
     void loginSuccess();
     void loginError(const QString &message);
-    void usersOnlineChanged(const QVariantList &users);
-    void channelsListChanged(const QVariantList &channels);
+    void usersOnlineChanged();
+    void channelsListChanged();
 
 private slots:
     void onConnected();
@@ -146,13 +147,13 @@ private:
     bool m_isSosActive = false;
     QString m_sosSenderId;
 
-    ConnectionStatus m_connectionStatus = StatusDisconnected;
-    CommState m_commState = CommStateOffline;
-    PtpHandshakeStatus m_ptpStatus = PtpStatusNone;
+    WebSocketManager::ConnectionStatus m_connectionStatus = StatusDisconnected;
+    WebSocketManager::CommState m_commState = CommStateOffline;
+    WebSocketManager::PtpHandshakeStatus m_ptpStatus = PtpStatusNone;
     QTimer *m_ptpTimeoutTimer;
 
-    QVariantList m_usersOnline;
-    QVariantList m_channelsList;
+    QList<QVariant> m_usersOnline;
+    QList<QVariant> m_channelsList;
     QString m_savedUsername;
     QString m_savedPassword;
 
