@@ -157,7 +157,7 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
         m_duplexMode = data["duplex_mode"].toString("HALF DUPLEX");
 
         if (data.contains("channels")) {
-            m_channelsList = data["channels"].toArray();
+            m_channelsList = data["channels"].toArray().toVariantList();
             emit channelsListChanged(m_channelsList);
         }
 
@@ -168,7 +168,7 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
     } else if (type == "login_error") {
         emit loginError(data["message"].toString());
     } else if (type == "channels_updated") {
-        m_channelsList = data["channels"].toArray();
+        m_channelsList = data["channels"].toArray().toVariantList();
         emit channelsListChanged(m_channelsList);
     } else if (type == "join_channel_success") {
         m_channelName = data["channel_name"].toString();
@@ -243,9 +243,10 @@ void WebSocketManager::handleJsonMessage(const QJsonObject &root)
         }
         updateTalkingStatusUI();
     } else if (type == "users_online") {
-        m_usersOnline = data["users"].toArray();
+        QJsonArray usersArray = data["users"].toArray();
+        m_usersOnline = usersArray.toVariantList();
         m_userIdToNameMap.clear();
-        for (const QJsonValue &v : m_usersOnline) {
+        for (const QJsonValue &v : usersArray) {
             QJsonObject u = v.toObject();
             m_userIdToNameMap[toTruncatedId(u["id"].toString())] = u["name"].toString();
         }
