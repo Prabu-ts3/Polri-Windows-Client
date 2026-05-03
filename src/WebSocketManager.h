@@ -55,20 +55,20 @@ public:
     Q_PROPERTY(bool isVideoEnabled READ isVideoEnabled NOTIFY permissionsChanged)
     Q_PROPERTY(bool isPtpEnabled READ isPtpEnabled NOTIFY permissionsChanged)
     Q_PROPERTY(QString duplexMode READ duplexMode NOTIFY permissionsChanged)
-    Q_PROPERTY(QList<QVariant> usersOnline READ usersOnline NOTIFY usersOnlineChanged)
-    Q_PROPERTY(QList<QVariant> channelsList READ channelsList NOTIFY channelsListChanged)
-    Q_PROPERTY(WebSocketManager::ConnectionStatus connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
+    Q_PROPERTY(QVariantList usersOnline READ usersOnline NOTIFY usersOnlineChanged)
+    Q_PROPERTY(QVariantList channelsList READ channelsList NOTIFY channelsListChanged)
+    Q_PROPERTY(ConnectionStatus connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
     Q_PROPERTY(bool isSosActive READ isSosActive NOTIFY sosStatusChanged)
-    Q_PROPERTY(WebSocketManager::CommState communicationState READ communicationState NOTIFY communicationStateChanged)
-    Q_PROPERTY(WebSocketManager::PtpHandshakeStatus ptpHandshakeStatus READ ptpHandshakeStatus NOTIFY ptpHandshakeChanged)
+    Q_PROPERTY(CommState communicationState READ communicationState NOTIFY communicationStateChanged)
+    Q_PROPERTY(PtpHandshakeStatus ptpHandshakeStatus READ ptpHandshakeStatus NOTIFY ptpHandshakeChanged)
 
     explicit WebSocketManager(QObject *parent = nullptr);
     static WebSocketManager* instance();
 
     bool isConnected() const { return m_isConnected; }
-    WebSocketManager::ConnectionStatus connectionStatus() const { return m_connectionStatus; }
-    WebSocketManager::CommState communicationState() const { return m_commState; }
-    WebSocketManager::PtpHandshakeStatus ptpHandshakeStatus() const { return m_ptpStatus; }
+    ConnectionStatus connectionStatus() const { return m_connectionStatus; }
+    CommState communicationState() const { return m_commState; }
+    PtpHandshakeStatus ptpHandshakeStatus() const { return m_ptpStatus; }
 
     QString channelName() const { return m_channelName; }
     QString talkingStatus() const { return m_talkingStatus; }
@@ -80,8 +80,8 @@ public:
     bool isVideoEnabled() const { return m_isVideoEnabled; }
     bool isPtpEnabled() const { return m_isPtpEnabled; }
     QString duplexMode() const { return m_duplexMode; }
-    QList<QVariant> usersOnline() const { return m_usersOnline; }
-    QList<QVariant> channelsList() const { return m_channelsList; }
+    QVariantList usersOnline() const { return m_usersOnline; }
+    QVariantList channelsList() const { return m_channelsList; }
     bool isSosActive() const { return m_isSosActive; }
 
     Q_INVOKABLE void login(const QString &username, const QString &password, const QString &serverUrl);
@@ -148,13 +148,13 @@ private:
     bool m_isSosActive = false;
     QString m_sosSenderId;
 
-    WebSocketManager::ConnectionStatus m_connectionStatus = StatusDisconnected;
-    WebSocketManager::CommState m_commState = CommStateOffline;
-    WebSocketManager::PtpHandshakeStatus m_ptpStatus = PtpStatusNone;
+    ConnectionStatus m_connectionStatus = StatusDisconnected;
+    CommState m_commState = CommStateOffline;
+    PtpHandshakeStatus m_ptpStatus = PtpStatusNone;
     QTimer *m_ptpTimeoutTimer;
 
-    QList<QVariant> m_usersOnline;
-    QList<QVariant> m_channelsList;
+    QVariantList m_usersOnline;
+    QVariantList m_channelsList;
     QString m_savedUsername;
     QString m_savedPassword;
 
@@ -169,7 +169,5 @@ private:
     int m_reconnectInterval = 2000;
     const int MAX_RECONNECT_INTERVAL = 10000;
 };
-
-Q_DECLARE_METATYPE(QList<QVariant>)
 
 #endif // WEBSOCKETMANAGER_H

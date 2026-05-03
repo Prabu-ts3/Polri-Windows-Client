@@ -22,7 +22,7 @@ public:
     };
     Q_ENUM(SoundType)
 
-    Q_INVOKABLE void play(SoundManager::SoundType type);
+    Q_INVOKABLE void play(SoundType type);
 
     // Identik dengan Android SoundManager.kt
     void playStartTx();
