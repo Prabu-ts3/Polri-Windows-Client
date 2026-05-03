@@ -41,6 +41,7 @@ public:
     };
     Q_ENUM(PtpHandshakeStatus)
 
+    // Gunakan kualifikasi penuh WebSocketManager:: untuk semua tipe Enum di Q_PROPERTY
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectionStatusChanged)
     Q_PROPERTY(QString channelName READ channelName NOTIFY channelNameChanged)
     Q_PROPERTY(QString talkingStatus READ talkingStatus NOTIFY talkingStatusChanged)
@@ -54,22 +55,23 @@ public:
     Q_PROPERTY(QString duplexMode READ duplexMode NOTIFY permissionsChanged)
     Q_PROPERTY(QJsonArray usersOnline READ usersOnline NOTIFY usersOnlineChanged)
     Q_PROPERTY(QJsonArray channelsList READ channelsList NOTIFY channelsListChanged)
-    Q_PROPERTY(ConnectionStatus connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
+    Q_PROPERTY(WebSocketManager::ConnectionStatus connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
     Q_PROPERTY(bool isSosActive READ isSosActive NOTIFY sosStatusChanged)
-    Q_PROPERTY(CommState communicationState READ communicationState NOTIFY communicationStateChanged)
-    Q_PROPERTY(PtpHandshakeStatus ptpHandshakeStatus READ ptpHandshakeStatus NOTIFY ptpHandshakeChanged)
+    Q_PROPERTY(WebSocketManager::CommState communicationState READ communicationState NOTIFY communicationStateChanged)
+    Q_PROPERTY(WebSocketManager::PtpHandshakeStatus ptpHandshakeStatus READ ptpHandshakeStatus NOTIFY ptpHandshakeChanged)
 
     explicit WebSocketManager(QObject *parent = nullptr);
     static WebSocketManager* instance();
 
     bool isConnected() const { return m_isConnected; }
-    ConnectionStatus connectionStatus() const { return m_connectionStatus; }
-    CommState communicationState() const { return m_commState; }
-    PtpHandshakeStatus ptpHandshakeStatus() const { return m_ptpStatus; }
+    WebSocketManager::ConnectionStatus connectionStatus() const { return m_connectionStatus; }
+    WebSocketManager::CommState communicationState() const { return m_commState; }
+    WebSocketManager::PtpHandshakeStatus ptpHandshakeStatus() const { return m_ptpStatus; }
+
     QString channelName() const { return m_channelName; }
     QString talkingStatus() const { return m_talkingStatus; }
     QString lastSpeaker() const { return m_lastSpeaker; }
-    QString ptpTargetName() const { return m_ptpTargetName; }
+    QString ptpTargetName() const { return m_ptpTargetId.isEmpty() ? "" : m_ptpTargetName; }
     QString myUserId() const { return m_myUserId; }
     bool isPtpActive() const { return !m_ptpTargetId.isEmpty(); }
     bool isRxOnly() const { return m_isRxOnly; }
@@ -142,9 +144,9 @@ private:
     bool m_isSosActive = false;
     QString m_sosSenderId;
 
-    ConnectionStatus m_connectionStatus = StatusDisconnected;
-    CommState m_commState = CommStateOffline;
-    PtpHandshakeStatus m_ptpStatus = PtpStatusNone;
+    WebSocketManager::ConnectionStatus m_connectionStatus = StatusDisconnected;
+    WebSocketManager::CommState m_commState = CommStateOffline;
+    WebSocketManager::PtpHandshakeStatus m_ptpStatus = PtpStatusNone;
     QTimer *m_ptpTimeoutTimer;
 
     QJsonArray m_usersOnline;

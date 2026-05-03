@@ -31,7 +31,7 @@ void SoundManager::loadSound(SoundType type, const QString &path, float volume)
     m_sounds.insert(type, effect);
 }
 
-void SoundManager::play(SoundType type)
+void SoundManager::play(SoundManager::SoundType type)
 {
     if (m_sounds.contains(type)) {
         m_sounds[type]->play();

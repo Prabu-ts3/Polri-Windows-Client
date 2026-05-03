@@ -2,17 +2,19 @@
 #define AUDIOHANDLER_H
 
 #include <QObject>
-#include <QAudioSource>
-#include <QAudioSink>
-#include <QMediaDevices>
-#include <QAudioDevice>
-#include <QIODevice>
+#include <QAudioFormat>
 #include <QByteArray>
 #include <QMap>
 #include <QList>
 #include <QMutex>
 #include <QTimer>
-#include <opus.h>
+
+// Forward declarations for Opus and Qt audio types
+struct OpusEncoder;
+struct OpusDecoder;
+class QAudioSource;
+class QAudioSink;
+class QIODevice;
 
 class AudioHandler : public QObject
 {
