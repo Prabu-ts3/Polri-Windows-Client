@@ -25,27 +25,39 @@ jobs:
           arch: 'win64_mingw'
           modules: 'qtmultimedia qtwebsockets qtpositioning qtlocation'
 
-      - name: Setup MinGW
-        uses: egor-tensin/setup-mingw@v2
-        with:
-          platform: x64
+      - name: Set up MinGW Path
+        shell: pwsh
+        run: |
+          # Ambil path MinGW dari instalasi Qt
+          $mingwPath = "${{ env.Qt6_Dir }}\..\..\..\Tools\mingw1120_64\bin"
+          if (!(Test-Path $mingwPath)) {
+            # Fallback jika struktur folder berbeda
+            $mingwPath = "C:\Qt\Tools\mingw1120_64\bin"
+          }
+          echo "D:\a\Polri-Windows-Client\Qt\6.5.3\mingw_64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "C:\ProgramData\Chocolatey\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          # Gunakan MinGW yang disediakan oleh runner secara default atau dari Qt
+          echo "C:\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Build Opus
         shell: bash
         run: |
           mkdir -p opus/opus-1.5.2/build
           cd opus/opus-1.5.2/build
+          # Menggunakan generator MinGW
           cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DOPUS_BUILD_TESTING=OFF -DOPUS_BUILD_PROGRAMS=OFF
           mingw32-make -j4
           mingw32-make install
 
       - name: Configure CMake
+        shell: bash
         run: |
-          mkdir build
+          mkdir -p build
           cd build
-          cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+          cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${{ env.Qt6_Dir }}"
 
       - name: Build Application
+        shell: bash
         run: |
           cd build
           mingw32-make -j4
@@ -54,7 +66,8 @@ jobs:
         shell: pwsh
         run: |
           cd build
-          windeployqt --qmldir ../res/qml --no-translations --compiler-runtime PolriWindowsClient.exe
+          $qtBin = "${{ env.Qt6_Dir }}\bin"
+          & "$qtBin\windeployqt.exe" --qmldir ../res/qml --no-translations --compiler-runtime PolriWindowsClient.exe
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
