@@ -10,8 +10,9 @@ SettingsManager::SettingsManager(QObject *parent)
     s_instance = this;
 
     // Monitor hardware changes
-    connect(QMediaDevices::instance(), &QMediaDevices::audioInputsChanged, this, &SettingsManager::availableDevicesChanged);
-    connect(QMediaDevices::instance(), &QMediaDevices::audioOutputsChanged, this, &SettingsManager::availableDevicesChanged);
+    QMediaDevices *mediaDevices = new QMediaDevices(this);
+    connect(mediaDevices, &QMediaDevices::audioInputsChanged, this, &SettingsManager::availableDevicesChanged);
+    connect(mediaDevices, &QMediaDevices::audioOutputsChanged, this, &SettingsManager::availableDevicesChanged);
 }
 
 SettingsManager* SettingsManager::instance()
@@ -19,150 +20,150 @@ SettingsManager* SettingsManager::instance()
     return s_instance;
 }
 
-QString SettingsManager::serverUrl() const
+QString SettingsManager::getServerUrl() const
 {
     return m_settings.value("serverUrl", "ws://polri.poc-id.my.id:5000").toString();
 }
 
 void SettingsManager::setServerUrl(const QString &url)
 {
-    if (serverUrl() != url) {
+    if (getServerUrl() != url) {
         m_settings.setValue("serverUrl", url);
         emit serverUrlChanged();
     }
 }
 
-int SettingsManager::outputVolume() const
+int SettingsManager::getOutputVolume() const
 {
     return m_settings.value("outputVolume", 100).toInt();
 }
 
 void SettingsManager::setOutputVolume(int volume)
 {
-    if (outputVolume() != volume) {
+    if (getOutputVolume() != volume) {
         m_settings.setValue("outputVolume", volume);
         emit outputVolumeChanged();
     }
 }
 
-bool SettingsManager::voxEnabled() const
+bool SettingsManager::isVoxEnabled() const
 {
     return m_settings.value("voxEnabled", false).toBool();
 }
 
 void SettingsManager::setVoxEnabled(bool enabled)
 {
-    if (voxEnabled() != enabled) {
+    if (isVoxEnabled() != enabled) {
         m_settings.setValue("voxEnabled", enabled);
         emit voxEnabledChanged();
     }
 }
 
-bool SettingsManager::pttToggle() const
+bool SettingsManager::isPttToggle() const
 {
     return m_settings.value("pttToggle", false).toBool();
 }
 
 void SettingsManager::setPttToggle(bool enabled)
 {
-    if (pttToggle() != enabled) {
+    if (isPttToggle() != enabled) {
         m_settings.setValue("pttToggle", enabled);
         emit pttToggleChanged();
     }
 }
 
-bool SettingsManager::soundPush() const
+bool SettingsManager::isSoundPush() const
 {
     return m_settings.value("soundPush", true).toBool();
 }
 
 void SettingsManager::setSoundPush(bool enabled)
 {
-    if (soundPush() != enabled) {
+    if (isSoundPush() != enabled) {
         m_settings.setValue("soundPush", enabled);
         emit soundPushChanged();
     }
 }
 
-bool SettingsManager::soundRx() const
+bool SettingsManager::isSoundRx() const
 {
     return m_settings.value("soundRx", true).toBool();
 }
 
 void SettingsManager::setSoundRx(bool enabled)
 {
-    if (soundRx() != enabled) {
+    if (isSoundRx() != enabled) {
         m_settings.setValue("soundRx", enabled);
         emit soundRxChanged();
     }
 }
 
-bool SettingsManager::gatewayMode() const
+bool SettingsManager::isGatewayMode() const
 {
     return m_settings.value("gatewayMode", false).toBool();
 }
 
 void SettingsManager::setGatewayMode(bool enabled)
 {
-    if (gatewayMode() != enabled) {
+    if (isGatewayMode() != enabled) {
         m_settings.setValue("gatewayMode", enabled);
         emit gatewayModeChanged();
     }
 }
 
-bool SettingsManager::dtmfMode() const
+bool SettingsManager::isDtmfMode() const
 {
     return m_settings.value("dtmfMode", false).toBool();
 }
 
 void SettingsManager::setDtmfMode(bool enabled)
 {
-    if (dtmfMode() != enabled) {
+    if (isDtmfMode() != enabled) {
         m_settings.setValue("dtmfMode", enabled);
         emit dtmfModeChanged();
     }
 }
 
-int SettingsManager::voxThreshold() const
+int SettingsManager::getVoxThreshold() const
 {
     return m_settings.value("voxThreshold", 2500).toInt();
 }
 
 void SettingsManager::setVoxThreshold(int threshold)
 {
-    if (voxThreshold() != threshold) {
+    if (getVoxThreshold() != threshold) {
         m_settings.setValue("voxThreshold", threshold);
         emit voxThresholdChanged();
     }
 }
 
-QString SettingsManager::inputDeviceId() const
+QString SettingsManager::getInputDeviceId() const
 {
     return m_settings.value("inputDeviceId", "default").toString();
 }
 
 void SettingsManager::setInputDeviceId(const QString &id)
 {
-    if (inputDeviceId() != id) {
+    if (getInputDeviceId() != id) {
         m_settings.setValue("inputDeviceId", id);
         emit inputDeviceIdChanged();
     }
 }
 
-QString SettingsManager::outputDeviceId() const
+QString SettingsManager::getOutputDeviceId() const
 {
     return m_settings.value("outputDeviceId", "default").toString();
 }
 
 void SettingsManager::setOutputDeviceId(const QString &id)
 {
-    if (outputDeviceId() != id) {
+    if (getOutputDeviceId() != id) {
         m_settings.setValue("outputDeviceId", id);
         emit outputDeviceIdChanged();
     }
 }
 
-QStringList SettingsManager::availableInputs() const
+QStringList SettingsManager::getAvailableInputs() const
 {
     QStringList list;
     const auto devices = QMediaDevices::audioInputs();
@@ -172,7 +173,7 @@ QStringList SettingsManager::availableInputs() const
     return list;
 }
 
-QStringList SettingsManager::availableOutputs() const
+QStringList SettingsManager::getAvailableOutputs() const
 {
     QStringList list;
     const auto devices = QMediaDevices::audioOutputs();

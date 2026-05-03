@@ -9,13 +9,13 @@
 class VideoRenderer : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVideoSink* videoSink READ videoSink WRITE setVideoSink NOTIFY videoSinkChanged)
+    Q_PROPERTY(QVideoSink* videoSink READ getVideoSink WRITE setVideoSink NOTIFY videoSinkChanged)
 
 public:
     explicit VideoRenderer(QObject *parent = nullptr);
     static VideoRenderer* instance();
 
-    QVideoSink* videoSink() const { return m_videoSink; }
+    QVideoSink* getVideoSink() const { return m_videoSink; }
     void setVideoSink(QVideoSink* sink);
 
     void processFrame(const QByteArray &data);

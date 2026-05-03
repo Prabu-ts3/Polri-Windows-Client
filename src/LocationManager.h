@@ -7,25 +7,24 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QVariant>
-#include <QList>
-#include <QMetaType>
+#include <QVariantList>
 
 class LocationManager : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantList userLocations READ userLocations NOTIFY userLocationsChanged)
-    Q_PROPERTY(double latitude READ latitude NOTIFY positionChanged)
-    Q_PROPERTY(double longitude READ longitude NOTIFY positionChanged)
-    Q_PROPERTY(double accuracy READ accuracy NOTIFY positionChanged)
+    Q_PROPERTY(QVariant userLocations READ getUserLocations NOTIFY userLocationsChanged)
+    Q_PROPERTY(double latitude READ getLatitude NOTIFY positionChanged)
+    Q_PROPERTY(double longitude READ getLongitude NOTIFY positionChanged)
+    Q_PROPERTY(double accuracy READ getAccuracy NOTIFY positionChanged)
 
 public:
     explicit LocationManager(QObject *parent = nullptr);
     static LocationManager* instance();
 
-    QVariantList userLocations() const { return m_userLocations; }
-    double latitude() const { return m_latitude; }
-    double longitude() const { return m_longitude; }
-    double accuracy() const { return m_accuracy; }
+    QVariant getUserLocations() const { return QVariant::fromValue(m_userLocations); }
+    double getLatitude() const { return m_latitude; }
+    double getLongitude() const { return m_longitude; }
+    double getAccuracy() const { return m_accuracy; }
 
     void updateRemoteUsers(const QJsonArray &users);
 

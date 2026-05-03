@@ -41,7 +41,7 @@ WebSocketManager::WebSocketManager(QObject *parent) : QObject(parent)
     AudioHandler* audio = AudioHandler::instance();
 
     connect(audio, &AudioHandler::audioDataReady, this, [this](const QByteArray &data) {
-        if (m_isConnected && (m_talkingStatus.contains("Speaking") || m_talkingStatus.contains("Private to") || SettingsManager::instance()->gatewayMode())) {
+        if (m_isConnected && (m_talkingStatus.contains("Speaking") || m_talkingStatus.contains("Private to") || SettingsManager::instance()->isGatewayMode())) {
             QByteArray packet;
             packet.append(static_cast<char>(1)); // Type 1: Audio
 
@@ -55,7 +55,7 @@ WebSocketManager::WebSocketManager(QObject *parent) : QObject(parent)
     });
 
     connect(audio, &AudioHandler::voxTriggered, this, [this](bool speaking) {
-        if (SettingsManager::instance()->voxEnabled()) {
+        if (SettingsManager::instance()->isVoxEnabled()) {
             if (speaking) {
                 startTalking();
             } else {
@@ -68,7 +68,7 @@ WebSocketManager::WebSocketManager(QObject *parent) : QObject(parent)
         if (!m_savedUsername.isEmpty()) {
             qDebug() << "Server URL updated, reconnecting...";
             m_webSocket.close();
-            login(m_savedUsername, m_savedPassword, SettingsManager::instance()->serverUrl());
+            login(m_savedUsername, m_savedPassword, SettingsManager::instance()->getServerUrl());
         }
     });
 }
@@ -433,9 +433,9 @@ void WebSocketManager::endPtp()
 void WebSocketManager::sendSos()
 {
     QJsonObject data;
-    data["latitude"] = LocationManager::instance()->latitude();
-    data["longitude"] = LocationManager::instance()->longitude();
-    data["accuracy"] = (int)LocationManager::instance()->accuracy();
+    data["latitude"] = LocationManager::instance()->getLatitude();
+    data["longitude"] = LocationManager::instance()->getLongitude();
+    data["accuracy"] = (int)LocationManager::instance()->getAccuracy();
     data["timestamp"] = QDateTime::currentMSecsSinceEpoch();
     sendJson("sos_signal", data);
 }

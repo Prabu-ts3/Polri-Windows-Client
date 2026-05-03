@@ -2,15 +2,19 @@
 
 # Folder tujuan build
 BUILD_DIR="build_windows"
-QT_MINGW_PATH="/Users/prabu/Qt/6.x.x/mingw_64" # GANTI KE PATH QT WINDOWS ANDA DI MAC
+# Mencari folder mingw_64 secara otomatis di folder ~/Qt
+QT_MINGW_PATH=$(find /Users/prabu/Qt -name "mingw_64" -type d -maxdepth 3 | head -n 1)
 
 echo "--- Starting Windows Build (Cross-Compile) ---"
 
-if [ ! -d "$QT_MINGW_PATH" ]; then
-    echo "ERROR: Qt MinGW path not found at $QT_MINGW_PATH"
-    echo "Please update build_windows.sh with your actual Qt Windows SDK path on this Mac."
+if [ -z "$QT_MINGW_PATH" ] || [ ! -d "$QT_MINGW_PATH" ]; then
+    echo "ERROR: Qt MinGW SDK for Windows not found!"
+    echo "Please install 'MinGW 64-bit' component via Qt Online Installer."
+    echo "Expected location: ~/Qt/6.x.x/mingw_64"
     exit 1
 fi
+
+echo "Using Qt SDK at: $QT_MINGW_PATH"
 
 mkdir -p $BUILD_DIR
 cd $BUILD_DIR

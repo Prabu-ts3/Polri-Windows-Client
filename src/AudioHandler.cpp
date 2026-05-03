@@ -4,6 +4,11 @@
 #include <QtMath>
 #include <QTimer>
 #include <QMutexLocker>
+#include <QAudioSource>
+#include <QAudioSink>
+#include <QMediaDevices>
+#include <QAudioDevice>
+#include <opus.h>
 
 static AudioHandler* s_instance = nullptr;
 
@@ -55,7 +60,7 @@ void AudioHandler::updateInputDevice()
         m_audioSource->deleteLater();
     }
 
-    QString selectedDesc = SettingsManager::instance()->inputDeviceId();
+    QString selectedDesc = SettingsManager::instance()->getInputDeviceId();
     QAudioDevice selectedDevice = QMediaDevices::defaultAudioInput();
 
     const auto devices = QMediaDevices::audioInputs();
@@ -77,7 +82,7 @@ void AudioHandler::updateOutputDevice()
         m_audioSink->deleteLater();
     }
 
-    QString selectedDesc = SettingsManager::instance()->outputDeviceId();
+    QString selectedDesc = SettingsManager::instance()->getOutputDeviceId();
     QAudioDevice selectedDevice = QMediaDevices::defaultAudioOutput();
 
     const auto devices = QMediaDevices::audioOutputs();
@@ -131,7 +136,7 @@ void AudioHandler::readAudio()
     const int16_t* samples = reinterpret_cast<const int16_t*>(pcmData.data());
 
     // VOX Logic
-    if (SettingsManager::instance()->voxEnabled() || SettingsManager::instance()->gatewayMode()) {
+    if (SettingsManager::instance()->isVoxEnabled() || SettingsManager::instance()->isGatewayMode()) {
         processVox(samples, m_frameSize);
     }
 
@@ -154,7 +159,7 @@ void AudioHandler::processVox(const int16_t* pcm, int samples)
         if (absVal > maxAmp) maxAmp = absVal;
     }
 
-    int threshold = SettingsManager::instance()->voxThreshold();
+    int threshold = SettingsManager::instance()->getVoxThreshold();
 
     if (maxAmp > threshold) {
         m_voxSilenceFrames = 0;
@@ -190,7 +195,7 @@ void AudioHandler::applyAudioFilter(quint32 userId, int16_t* buffer, int length)
         float treble = sample - state.midState;
 
         float processed = (bass * 1.5f) + (mid * 1.2f) + (treble * 0.4f);
-        buffer[i] = qBound<int16_t>(-32768, processed, 32767);
+        buffer[i] = static_cast<int16_t>(qBound(-32768.0f, processed, 32767.0f));
     }
 }
 
@@ -260,12 +265,12 @@ void AudioHandler::mixAndPlay()
         finalBuffer.resize(bytesPerFrame);
         int16_t* outSamples = reinterpret_cast<int16_t*>(finalBuffer.data());
 
-        float vol = SettingsManager::instance()->outputVolume() / 100.0f;
+        float vol = SettingsManager::instance()->getOutputVolume() / 100.0f;
 
         for (int j = 0; j < m_frameSize; ++j) {
             // Clipping protection and volume application
-            int32_t sample = static_cast<int32_t>(mixedBuffer[j] * vol);
-            outSamples[j] = qBound<int16_t>(-32768, sample, 32767);
+            float sample = mixedBuffer[j] * vol;
+            outSamples[j] = static_cast<int16_t>(qBound(-32768.0f, sample, 32767.0f));
         }
 
         m_outputDevice->write(finalBuffer);

@@ -10,7 +10,7 @@
 #include <QSet>
 #include <QMap>
 #include <QVariant>
-#include <QList>
+#include <QVariantList>
 #include <QMetaType>
 
 class WebSocketManager : public QObject
@@ -45,43 +45,43 @@ public:
     Q_ENUM(PtpHandshakeStatus)
 
     Q_PROPERTY(bool connected READ isConnected NOTIFY connectedChanged)
-    Q_PROPERTY(QString channelName READ channelName NOTIFY channelNameChanged)
-    Q_PROPERTY(QString talkingStatus READ talkingStatus NOTIFY talkingStatusChanged)
-    Q_PROPERTY(QString lastSpeaker READ lastSpeaker NOTIFY lastSpeakerChanged)
-    Q_PROPERTY(QString ptpTargetName READ ptpTargetName NOTIFY ptpTargetNameChanged)
-    Q_PROPERTY(QString myUserId READ myUserId NOTIFY myUserIdChanged)
+    Q_PROPERTY(QString channelName READ getChannelName NOTIFY channelNameChanged)
+    Q_PROPERTY(QString talkingStatus READ getTalkingStatus NOTIFY talkingStatusChanged)
+    Q_PROPERTY(QString lastSpeaker READ getLastSpeaker NOTIFY lastSpeakerChanged)
+    Q_PROPERTY(QString ptpTargetName READ getPtpTargetName NOTIFY ptpTargetNameChanged)
+    Q_PROPERTY(QString myUserId READ getMyUserId NOTIFY myUserIdChanged)
     Q_PROPERTY(bool isPtpActive READ isPtpActive NOTIFY ptpStatusChanged)
     Q_PROPERTY(bool isRxOnly READ isRxOnly NOTIFY permissionsChanged)
     Q_PROPERTY(bool isVideoEnabled READ isVideoEnabled NOTIFY permissionsChanged)
     Q_PROPERTY(bool isPtpEnabled READ isPtpEnabled NOTIFY permissionsChanged)
-    Q_PROPERTY(QString duplexMode READ duplexMode NOTIFY permissionsChanged)
-    Q_PROPERTY(QVariantList usersOnline READ usersOnline NOTIFY usersOnlineChanged)
-    Q_PROPERTY(QVariantList channelsList READ channelsList NOTIFY channelsListChanged)
-    Q_PROPERTY(ConnectionStatus connectionStatus READ connectionStatus NOTIFY connectionStatusChanged)
+    Q_PROPERTY(QString duplexMode READ getDuplexMode NOTIFY permissionsChanged)
+    Q_PROPERTY(QVariant usersOnline READ getUsersOnline NOTIFY usersOnlineChanged)
+    Q_PROPERTY(QVariant channelsList READ getChannelsList NOTIFY channelsListChanged)
+    Q_PROPERTY(ConnectionStatus connectionStatus READ getConnectionStatus NOTIFY connectionStatusChanged)
     Q_PROPERTY(bool isSosActive READ isSosActive NOTIFY sosStatusChanged)
-    Q_PROPERTY(CommState communicationState READ communicationState NOTIFY communicationStateChanged)
-    Q_PROPERTY(PtpHandshakeStatus ptpHandshakeStatus READ ptpHandshakeStatus NOTIFY ptpHandshakeChanged)
+    Q_PROPERTY(CommState communicationState READ getCommunicationState NOTIFY communicationStateChanged)
+    Q_PROPERTY(PtpHandshakeStatus ptpHandshakeStatus READ getPtpHandshakeStatus NOTIFY ptpHandshakeChanged)
 
     explicit WebSocketManager(QObject *parent = nullptr);
     static WebSocketManager* instance();
 
     bool isConnected() const { return m_isConnected; }
-    ConnectionStatus connectionStatus() const { return m_connectionStatus; }
-    CommState communicationState() const { return m_commState; }
-    PtpHandshakeStatus ptpHandshakeStatus() const { return m_ptpStatus; }
+    ConnectionStatus getConnectionStatus() const { return m_connectionStatus; }
+    CommState getCommunicationState() const { return m_commState; }
+    PtpHandshakeStatus getPtpHandshakeStatus() const { return m_ptpStatus; }
 
-    QString channelName() const { return m_channelName; }
-    QString talkingStatus() const { return m_talkingStatus; }
-    QString lastSpeaker() const { return m_lastSpeaker; }
-    QString ptpTargetName() const { return m_ptpTargetId.isEmpty() ? "" : m_ptpTargetName; }
-    QString myUserId() const { return m_myUserId; }
+    QString getChannelName() const { return m_channelName; }
+    QString getTalkingStatus() const { return m_talkingStatus; }
+    QString getLastSpeaker() const { return m_lastSpeaker; }
+    QString getPtpTargetName() const { return m_ptpTargetId.isEmpty() ? "" : m_ptpTargetName; }
+    QString getMyUserId() const { return m_myUserId; }
     bool isPtpActive() const { return !m_ptpTargetId.isEmpty(); }
     bool isRxOnly() const { return m_isRxOnly; }
     bool isVideoEnabled() const { return m_isVideoEnabled; }
     bool isPtpEnabled() const { return m_isPtpEnabled; }
-    QString duplexMode() const { return m_duplexMode; }
-    QVariantList usersOnline() const { return m_usersOnline; }
-    QVariantList channelsList() const { return m_channelsList; }
+    QString getDuplexMode() const { return m_duplexMode; }
+    QVariant getUsersOnline() const { return QVariant::fromValue(m_usersOnline); }
+    QVariant getChannelsList() const { return QVariant::fromValue(m_channelsList); }
     bool isSosActive() const { return m_isSosActive; }
 
     Q_INVOKABLE void login(const QString &username, const QString &password, const QString &serverUrl);

@@ -1,0 +1,61 @@
+name: Windows Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.7.2'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'mingw_64'
+        modules: 'qtmultimedia qtwebsockets qtpositioning qtlocation'
+
+    - name: Setup MinGW
+      uses: egor-tensin/setup-mingw@v2
+      with:
+        platform: x64
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config Release
+
+    - name: Package (windeployqt)
+      run: |
+        cd build
+        windeployqt --qmldir ../res/qml --no-translations --compiler-runtime PolriWindowsClient.exe
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: PolriWindowsClient-Windows
+        path: |
+          build/PolriWindowsClient.exe
+          build/*.dll
+          build/QtQuick/
+          build/Qt/
+          build/QtMultimedia/
+          build/QtWebSockets/
+          build/QtPositioning/
+          build/QtLocation/

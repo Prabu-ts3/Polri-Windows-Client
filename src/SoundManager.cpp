@@ -41,8 +41,8 @@ void SoundManager::play(SoundManager::SoundType type)
 void SoundManager::playStartTx()
 {
     auto settings = SettingsManager::instance();
-    if (!settings->soundPush()) return;
-    if (settings->dtmfMode() || settings->gatewayMode()) return;
+    if (!settings->isSoundPush()) return;
+    if (settings->isDtmfMode() || settings->isGatewayMode()) return;
 
     play(SoundPush);
 }
@@ -50,8 +50,8 @@ void SoundManager::playStartTx()
 void SoundManager::playStopTx()
 {
     auto settings = SettingsManager::instance();
-    if (!settings->soundPush()) return;
-    if (settings->dtmfMode() || settings->gatewayMode()) return;
+    if (!settings->isSoundPush()) return;
+    if (settings->isDtmfMode() || settings->isGatewayMode()) return;
 
     play(SoundRxEnd); // Di Android play(R.raw.end, VOL_END)
 }
@@ -59,12 +59,12 @@ void SoundManager::playStopTx()
 void SoundManager::playRxStart()
 {
     auto settings = SettingsManager::instance();
-    if (!settings->soundRx()) return;
+    if (!settings->isSoundRx()) return;
 
     // Mode Gateway murni (tanpa DTMF) mematikan nada
-    if (settings->gatewayMode() && !settings->dtmfMode()) return;
+    if (settings->isGatewayMode() && !settings->isDtmfMode()) return;
 
-    if (settings->dtmfMode()) {
+    if (settings->isDtmfMode()) {
         play(SoundPttOn); // on.wav
     } else {
         play(SoundRxStart); // rx.wav
@@ -74,12 +74,12 @@ void SoundManager::playRxStart()
 void SoundManager::playRxStop()
 {
     auto settings = SettingsManager::instance();
-    if (!settings->soundRx()) return;
+    if (!settings->isSoundRx()) return;
 
     // Mode Gateway murni (tanpa DTMF) mematikan nada
-    if (settings->gatewayMode() && !settings->dtmfMode()) return;
+    if (settings->isGatewayMode() && !settings->isDtmfMode()) return;
 
-    if (settings->dtmfMode()) {
+    if (settings->isDtmfMode()) {
         play(SoundPttOff); // off.wav
     } else {
         play(SoundRxEnd); // end.wav

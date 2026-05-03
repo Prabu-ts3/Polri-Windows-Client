@@ -8,59 +8,59 @@
 class SettingsManager : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString serverUrl READ serverUrl WRITE setServerUrl NOTIFY serverUrlChanged)
-    Q_PROPERTY(int outputVolume READ outputVolume WRITE setOutputVolume NOTIFY outputVolumeChanged)
-    Q_PROPERTY(bool voxEnabled READ voxEnabled WRITE setVoxEnabled NOTIFY voxEnabledChanged)
-    Q_PROPERTY(bool pttToggle READ pttToggle WRITE setPttToggle NOTIFY pttToggleChanged)
-    Q_PROPERTY(bool soundPush READ soundPush WRITE setSoundPush NOTIFY soundPushChanged)
-    Q_PROPERTY(bool soundRx READ soundRx WRITE setSoundRx NOTIFY soundRxChanged)
-    Q_PROPERTY(bool gatewayMode READ gatewayMode WRITE setGatewayMode NOTIFY gatewayModeChanged)
-    Q_PROPERTY(bool dtmfMode READ dtmfMode WRITE setDtmfMode NOTIFY dtmfModeChanged)
-    Q_PROPERTY(int voxThreshold READ voxThreshold WRITE setVoxThreshold NOTIFY voxThresholdChanged)
-    Q_PROPERTY(QString inputDeviceId READ inputDeviceId WRITE setInputDeviceId NOTIFY inputDeviceIdChanged)
-    Q_PROPERTY(QString outputDeviceId READ outputDeviceId WRITE setOutputDeviceId NOTIFY outputDeviceIdChanged)
-    Q_PROPERTY(QStringList availableInputs READ availableInputs NOTIFY availableDevicesChanged)
-    Q_PROPERTY(QStringList availableOutputs READ availableOutputs NOTIFY availableDevicesChanged)
+    Q_PROPERTY(QString serverUrl READ getServerUrl WRITE setServerUrl NOTIFY serverUrlChanged)
+    Q_PROPERTY(int outputVolume READ getOutputVolume WRITE setOutputVolume NOTIFY outputVolumeChanged)
+    Q_PROPERTY(bool voxEnabled READ isVoxEnabled WRITE setVoxEnabled NOTIFY voxEnabledChanged)
+    Q_PROPERTY(bool pttToggle READ isPttToggle WRITE setPttToggle NOTIFY pttToggleChanged)
+    Q_PROPERTY(bool soundPush READ isSoundPush WRITE setSoundPush NOTIFY soundPushChanged)
+    Q_PROPERTY(bool soundRx READ isSoundRx WRITE setSoundRx NOTIFY soundRxChanged)
+    Q_PROPERTY(bool gatewayMode READ isGatewayMode WRITE setGatewayMode NOTIFY gatewayModeChanged)
+    Q_PROPERTY(bool dtmfMode READ isDtmfMode WRITE setDtmfMode NOTIFY dtmfModeChanged)
+    Q_PROPERTY(int voxThreshold READ getVoxThreshold WRITE setVoxThreshold NOTIFY voxThresholdChanged)
+    Q_PROPERTY(QString inputDeviceId READ getInputDeviceId WRITE setInputDeviceId NOTIFY inputDeviceIdChanged)
+    Q_PROPERTY(QString outputDeviceId READ getOutputDeviceId WRITE setOutputDeviceId NOTIFY outputDeviceIdChanged)
+    Q_PROPERTY(QStringList availableInputs READ getAvailableInputs NOTIFY availableDevicesChanged)
+    Q_PROPERTY(QStringList availableOutputs READ getAvailableOutputs NOTIFY availableDevicesChanged)
 
 public:
     explicit SettingsManager(QObject *parent = nullptr);
     static SettingsManager* instance();
 
-    QString serverUrl() const;
+    QString getServerUrl() const;
     void setServerUrl(const QString &url);
 
-    int outputVolume() const;
+    int getOutputVolume() const;
     void setOutputVolume(int volume);
 
-    bool voxEnabled() const;
+    bool isVoxEnabled() const;
     void setVoxEnabled(bool enabled);
 
-    bool pttToggle() const;
+    bool isPttToggle() const;
     void setPttToggle(bool enabled);
 
-    bool soundPush() const;
+    bool isSoundPush() const;
     void setSoundPush(bool enabled);
 
-    bool soundRx() const;
+    bool isSoundRx() const;
     void setSoundRx(bool enabled);
 
-    bool gatewayMode() const;
+    bool isGatewayMode() const;
     void setGatewayMode(bool enabled);
 
-    bool dtmfMode() const;
+    bool isDtmfMode() const;
     void setDtmfMode(bool enabled);
 
-    int voxThreshold() const;
+    int getVoxThreshold() const;
     void setVoxThreshold(int threshold);
 
-    QString inputDeviceId() const;
+    QString getInputDeviceId() const;
     void setInputDeviceId(const QString &id);
 
-    QString outputDeviceId() const;
+    QString getOutputDeviceId() const;
     void setOutputDeviceId(const QString &id);
 
-    QStringList availableInputs() const;
-    QStringList availableOutputs() const;
+    QStringList getAvailableInputs() const;
+    QStringList getAvailableOutputs() const;
 
 signals:
     void serverUrlChanged();

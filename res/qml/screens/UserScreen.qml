@@ -99,11 +99,10 @@ Item {
                     }
 
                     // Speaking Indicator
-                    if (modelData.is_speaking) {
-                        Text {
-                            text: "🎙️"
-                            font.pixelSize: 18
-                        }
+                    Text {
+                        text: "🎙️"
+                        font.pixelSize: 18
+                        visible: modelData.is_speaking || false
                     }
                 }
             }

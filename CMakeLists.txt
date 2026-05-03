@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Tambahkan Multimedia & Dependencies
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick Widgets WebSockets Multimedia Positioning Location)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick Widgets WebSockets Multimedia Positioning Location Concurrent)
 
 # Konfigurasi Opus dari Source Lokal
 set(OPUS_BUILD_TESTING OFF CACHE BOOL "build tests" FORCE)
@@ -72,6 +72,7 @@ target_link_libraries(PolriWindowsClient PRIVATE
     Qt6::Multimedia
     Qt6::Positioning
     Qt6::Location
+    Qt6::Concurrent
     opus
 )
 
