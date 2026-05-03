@@ -1,0 +1,63 @@
+name: Build Windows Client
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.6.1'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_mingw64'
+          modules: 'qtmultimedia qtwebsockets qtpositioning qtlocation'
+
+      - name: Setup MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          platform: x64
+
+      - name: Build Opus
+        shell: bash
+        run: |
+          mkdir -p opus/opus-1.5.2/build
+          cd opus/opus-1.5.2/build
+          cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DOPUS_BUILD_TESTING=OFF -DOPUS_BUILD_PROGRAMS=OFF
+          mingw32-make -j4
+          mingw32-make install
+
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Application
+        run: |
+          cd build
+          mingw32-make -j4
+
+      - name: Deployment (windeployqt)
+        shell: pwsh
+        run: |
+          cd build
+          windeployqt --qmldir ../res/qml --no-translations --compiler-runtime PolriWindowsClient.exe
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Polri-Windows-Client
+          path: build/
